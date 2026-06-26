@@ -2505,5 +2505,293 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
+<!-- ═══════════════════════════════════════
+     SUPABASE DATABASE CONNECTION
+     AJ Eden Brew — Permanent Data Storage
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL = 'https://niamozubavxpocmlkghy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pYW1venViYXZ4cG9jbWxrZ2h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjM4OTcsImV4cCI6MjA5ODAzOTg5N30.dyhjZ80Wabc5z8D-a0EFzze0HEvCF2HfxMxZaasoJ8E';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── LOADING OVERLAY ──
+function showDBLoading(msg) {
+  let el = document.getElementById('db-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'db-loading';
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,26,16,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;';
+    el.innerHTML = `
+      <img src="" id="db-logo" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #C9A84C;margin-bottom:20px;"/>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#C9A84C;margin-bottom:10px;">AJ Eden Brew</div>
+      <div id="db-loading-msg" style="font-size:14px;color:#9abfa8;margin-bottom:24px;">Loading your store...</div>
+      <div style="width:48px;height:48px;border:3px solid #1a3326;border-top-color:#C9A84C;border-radius:50%;animation:spin .8s linear infinite;"></div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+    document.body.appendChild(el);
+    // copy logo
+    const logo = document.querySelector('.logo img');
+    if (logo) document.getElementById('db-logo').src = logo.src;
+  }
+  document.getElementById('db-loading-msg').textContent = msg || 'Loading...';
+  el.style.display = 'flex';
+}
+function hideDBLoading() {
+  const el = document.getElementById('db-loading');
+  if (el) el.style.display = 'none';
+}
+
+// ══════════════════════════════════════
+//  LOAD PRODUCTS FROM SUPABASE
+// ══════════════════════════════════════
+async function loadProductsFromDB() {
+  showDBLoading('Loading products from database...');
+  try {
+    const { data, error } = await db.from('products').select('*').order('id');
+    if (error) throw error;
+    if (data && data.length > 0) {
+      products.length = 0;
+      data.forEach(row => {
+        products.push({
+          id:      row.id,
+          name:    row.name,
+          cat:     row.cat,
+          emoji:   row.emoji || '📦',
+          price:   parseFloat(row.price),
+          weight:  row.weight || '',
+          inStock: row.in_stock,
+          badge:   row.badge || undefined,
+          photo:   row.photo || null,
+        });
+      });
+      renderProducts();
+      showToast('🌿 Products loaded!');
+    } else {
+      // No products in DB yet — push default products to DB
+      await syncDefaultProductsToDB();
+    }
+  } catch(e) {
+    console.error('DB load error:', e);
+    showToast('⚠️ Using offline data');
+    renderProducts();
+  }
+  hideDBLoading();
+}
+
+async function syncDefaultProductsToDB() {
+  showDBLoading('Setting up your store for the first time...');
+  for (const p of products) {
+    await db.from('products').upsert({
+      id:       p.id,
+      name:     p.name,
+      cat:      p.cat,
+      emoji:    p.emoji,
+      price:    p.price,
+      weight:   p.weight,
+      in_stock: p.inStock,
+      badge:    p.badge || null,
+      photo:    p.photo || null,
+    });
+  }
+  showToast('✅ Store synced to database!');
+  hideDBLoading();
+}
+
+// ══════════════════════════════════════
+//  SAVE PRODUCT TO SUPABASE
+// ══════════════════════════════════════
+async function saveProductToDB(p) {
+  const { error } = await db.from('products').upsert({
+    id:       p.id,
+    name:     p.name,
+    cat:      p.cat,
+    emoji:    p.emoji,
+    price:    p.price,
+    weight:   p.weight,
+    in_stock: p.inStock,
+    badge:    p.badge || null,
+    photo:    p.photo || null,
+  });
+  if (error) { console.error('Save error:', error); showToast('⚠️ Save failed: ' + error.message); return false; }
+  return true;
+}
+
+async function deleteProductFromDB(id) {
+  const { error } = await db.from('products').delete().eq('id', id);
+  if (error) { console.error('Delete error:', error); showToast('⚠️ Delete failed'); return false; }
+  return true;
+}
+
+// ══════════════════════════════════════
+//  OVERRIDE addProduct()
+// ══════════════════════════════════════
+const _origAddProduct = addProduct;
+addProduct = async function() {
+  const name    = document.getElementById('f-name').value.trim();
+  const cat     = document.getElementById('f-cat').value;
+  const price   = parseFloat(document.getElementById('f-price').value);
+  const weight  = document.getElementById('f-weight').value.trim();
+  const emoji   = document.getElementById('f-emoji').value.trim() || '📦';
+  const badge   = document.getElementById('f-badge').value;
+  const inStock = document.getElementById('f-stock').value === 'true';
+  const photo   = pendingAddPhoto || null;
+
+  if (!name || !price || !weight) { showToast('⚠️ Please fill Name, Price and Weight'); return; }
+
+  showDBLoading('Saving product...');
+  // Insert to Supabase first to get real ID
+  const { data, error } = await db.from('products').insert({
+    name, cat, emoji, price, weight,
+    in_stock: inStock,
+    badge: badge || null,
+    photo: photo,
+  }).select().single();
+
+  if (error) {
+    hideDBLoading();
+    showToast('⚠️ Failed to save: ' + error.message);
+    return;
+  }
+
+  products.push({
+    id: data.id, name, cat, emoji, price, weight,
+    inStock, badge: badge || undefined, photo
+  });
+
+  pendingAddPhoto = null;
+  resetForm();
+  renderStats();
+  renderTable(products);
+  renderProducts();
+  hideDBLoading();
+  showToast('✅ Product saved to database!');
+};
+
+// ══════════════════════════════════════
+//  OVERRIDE saveEdit()
+// ══════════════════════════════════════
+const _origSaveEdit = saveEdit;
+saveEdit = async function() {
+  const id  = parseInt(document.getElementById('e-id').value);
+  const idx = products.findIndex(x => x.id === id);
+  if (idx === -1) return;
+
+  const updated = {
+    ...products[idx],
+    name:    document.getElementById('e-name').value.trim(),
+    cat:     document.getElementById('e-cat').value,
+    price:   parseFloat(document.getElementById('e-price').value),
+    weight:  document.getElementById('e-weight').value.trim(),
+    emoji:   document.getElementById('e-emoji').value.trim(),
+    badge:   document.getElementById('e-badge').value || undefined,
+    inStock: document.getElementById('e-stock').value === 'true',
+    photo:   pendingEditPhoto !== null ? pendingEditPhoto : products[idx].photo,
+  };
+
+  showDBLoading('Saving changes...');
+  const ok = await saveProductToDB(updated);
+  if (ok) {
+    products[idx] = updated;
+    pendingEditPhoto = null;
+    closeEdit();
+    renderStats();
+    renderTable(products);
+    renderProducts();
+    hideDBLoading();
+    showToast('✅ Changes saved permanently!');
+  } else {
+    hideDBLoading();
+  }
+};
+
+// ══════════════════════════════════════
+//  OVERRIDE toggleStock()
+// ══════════════════════════════════════
+const _origToggle = toggleStock;
+toggleStock = async function(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  p.inStock = !p.inStock;
+  showDBLoading('Updating stock...');
+  const ok = await saveProductToDB(p);
+  hideDBLoading();
+  renderStats();
+  renderTable(searchTerm ? products.filter(p => p.name.toLowerCase().includes(searchTerm)) : products);
+  renderProducts();
+  showToast(p.inStock ? '✅ Marked as In Stock' : '⚠️ Marked as Out of Stock');
+};
+
+// ══════════════════════════════════════
+//  OVERRIDE deleteProduct()
+// ══════════════════════════════════════
+const _origDelete = deleteProduct;
+deleteProduct = async function(id) {
+  if (!confirm('Delete this product? This cannot be undone.')) return;
+  showDBLoading('Deleting product...');
+  const ok = await deleteProductFromDB(id);
+  if (ok) {
+    const idx = products.findIndex(x => x.id === id);
+    if (idx !== -1) products.splice(idx, 1);
+    renderStats();
+    renderTable(products);
+    renderProducts();
+    showToast('🗑️ Product deleted permanently!');
+  }
+  hideDBLoading();
+};
+
+// ══════════════════════════════════════
+//  CONTACT INFO — LOAD & SAVE
+// ══════════════════════════════════════
+async function loadContactFromDB() {
+  const { data, error } = await db.from('contact_info').select('*').eq('id', 1).single();
+  if (error || !data) return;
+  const fields = {
+    'c-name':    data.owner_name,
+    'c-email':   data.email,
+    'c-phone':   data.phone,
+    'c-wa':      data.whatsapp,
+    'c-address': data.address,
+  };
+  Object.entries(fields).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  });
+}
+
+const _origSaveContact = saveContact;
+saveContact = async function() {
+  const payload = {
+    owner_name: document.getElementById('c-name').value,
+    email:      document.getElementById('c-email').value,
+    phone:      document.getElementById('c-phone').value,
+    whatsapp:   document.getElementById('c-wa').value,
+    address:    document.getElementById('c-address').value,
+    updated_at: new Date().toISOString(),
+  };
+  showDBLoading('Saving contact info...');
+  const { error } = await db.from('contact_info').update(payload).eq('id', 1);
+  hideDBLoading();
+  if (error) { showToast('⚠️ Failed: ' + error.message); return; }
+
+  // Update visible contact details on page
+  document.querySelectorAll('a[href^="mailto:"]').forEach(el => { el.href = 'mailto:' + payload.email; el.textContent = payload.email; });
+  document.querySelectorAll('a[href^="tel:"]').forEach(el => { el.href = 'tel:+' + payload.whatsapp; el.textContent = payload.phone; });
+  document.querySelectorAll('a[href^="https://wa.me/"]').forEach(el => { el.href = 'https://wa.me/' + payload.whatsapp; });
+  showToast('✅ Contact info saved permanently!');
+};
+
+// ══════════════════════════════════════
+//  INIT — Load data on page start
+// ══════════════════════════════════════
+window.addEventListener('load', async () => {
+  await loadProductsFromDB();
+  await loadContactFromDB();
+});
+</script>
+
 </body>
 </html>
