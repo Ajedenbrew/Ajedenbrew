@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Page Not Found — AJ Eden Brew</title>
+<link rel="icon" type="image/png" href="/favicon.png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --forest: #1B4332;
+    --gold:   #C9A84C;
+    --cream:  #FAF7F0;
+    --dark:   #1A1A0F;
+    --muted:  #6B6B50;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family: 'Lato', sans-serif;
+    background: linear-gradient(135deg, #0a1a0f 0%, #1B4332 50%, #0d2218 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Floating particles */
+  .particle {
+    position: absolute;
+    font-size: 28px;
+    opacity: .15;
+    animation: float linear infinite;
+    pointer-events: none;
+  }
+  @keyframes float {
+    0%   { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-100px) rotate(360deg); }
+  }
+
+  .card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(201,168,76,.2);
+    border-radius: 20px;
+    padding: 56px 48px;
+    text-align: center;
+    max-width: 520px;
+    width: 90%;
+    backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    object-fit: cover;
+    margin-bottom: 24px;
+    box-shadow: 0 0 40px rgba(201,168,76,.3);
+  }
+
+  .err-code {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 96px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+    text-shadow: 0 0 40px rgba(201,168,76,.4);
+  }
+
+  .err-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    color: #fff;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .err-msg {
+    font-size: 15px;
+    color: #9abfa8;
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .btn-home {
+    display: inline-block;
+    background: var(--forest);
+    color: #fff;
+    padding: 14px 36px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: 2px solid var(--forest);
+    transition: all .2s;
+    margin: 6px;
+  }
+  .btn-home:hover { background: var(--gold); border-color: var(--gold); color: #1a1a0f; }
+
+  .btn-wa {
+    display: inline-block;
+    background: #25D366;
+    color: #fff;
+    padding: 14px 36px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    transition: all .2s;
+    margin: 6px;
+  }
+  .btn-wa:hover { background: #1da851; transform: translateY(-2px); }
+
+  .divider {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 28px auto;
+  }
+
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: rgba(154,191,168,.6);
+    margin-top: 28px;
+  }
+
+  /* Quick links */
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .quick-link {
+    font-size: 12px;
+    color: rgba(201,168,76,.7);
+    text-decoration: none;
+    padding: 5px 12px;
+    border: 1px solid rgba(201,168,76,.2);
+    border-radius: 20px;
+    transition: all .2s;
+  }
+  .quick-link:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.08); }
+</style>
+</head>
+<body>
+
+<!-- Floating background particles -->
+<script>
+const emojis = ['🍵','🌿','🍃','⭐','🌶️','🍫','🥜','🍯','☕','🌸'];
+emojis.forEach((e, i) => {
+  const el = document.createElement('div');
+  el.className = 'particle';
+  el.textContent = e;
+  el.style.cssText = `left:${(i*10)+Math.random()*8}%;animation-duration:${8+Math.random()*6}s;animation-delay:${Math.random()*5}s;font-size:${24+Math.random()*20}px;`;
+  document.body.appendChild(el);
+});
+</script>
+
+<div class="card">
+  <img class="logo-img" src="/apple-touch-icon.png" alt="AJ Eden Brew" onerror="this.style.display='none'"/>
+
+  <div class="err-code">404</div>
+  <div class="err-title">Page Not Found</div>
+  <div class="err-msg">
+    Oops! Looks like this page has gone on a nature walk. 🌿<br/>
+    The page you're looking for doesn't exist or has been moved.
+  </div>
+
+  <div>
+    <a href="/" class="btn-home">🏠 Go to Store</a>
+    <a href="https://wa.me/919655679322" class="btn-wa" target="_blank">💬 WhatsApp Us</a>
+  </div>
+
+  <div class="divider"></div>
+
+  <div style="font-size:13px;color:#5a7a68;margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase;">Quick Links</div>
+  <div class="quick-links">
+    <a href="/#tea"        class="quick-link">🍵 Tea</a>
+    <a href="/#coffee"     class="quick-link">☕ Coffee</a>
+    <a href="/#spices"     class="quick-link">🌶️ Spices</a>
+    <a href="/#honey"      class="quick-link">🍯 Honey</a>
+    <a href="/#chocolates" class="quick-link">🍫 Chocolates</a>
+    <a href="/#nuts"       class="quick-link">🥜 Nuts</a>
+  </div>
+
+  <div class="tagline">From Nature's Garden to Your Cup 🍃</div>
+</div>
+
+</body>
+</html>

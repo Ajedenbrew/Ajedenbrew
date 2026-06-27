@@ -1,0 +1,44 @@
+# ================================================
+# _headers — AJ Eden Brew
+# Security & Caching Rules for Netlify/Cloudflare
+# ================================================
+
+# ── ALL PAGES ──
+/*
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# ── HTML — no cache (always fresh) ──
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# ── FAVICON & ICONS — cache 1 year ──
+/favicon.ico
+  Cache-Control: public, max-age=31536000, immutable
+/favicon.png
+  Cache-Control: public, max-age=31536000, immutable
+/favicon-32.png
+  Cache-Control: public, max-age=31536000, immutable
+/apple-touch-icon.png
+  Cache-Control: public, max-age=31536000, immutable
+/icon-512.png
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── OG IMAGE — cache 1 week ──
+/og-image.jpg
+  Cache-Control: public, max-age=604800
+
+# ── MANIFEST — cache 1 day ──
+/manifest.json
+  Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
+
+# ── ROBOTS & SITEMAP ──
+/robots.txt
+  Cache-Control: public, max-age=86400
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+  Content-Type: application/xml

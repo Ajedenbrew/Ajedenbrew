@@ -1,0 +1,72 @@
+{
+  "name": "AJ Eden Brew — Tea & Spices",
+  "short_name": "AJ Eden Brew",
+  "description": "Premium teas, spices, honey, chocolates and nuts — From Nature's Garden to Your Cup",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1B4332",
+  "background_color": "#FAF7F0",
+  "lang": "en-IN",
+  "categories": ["shopping", "food", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "label": "AJ Eden Brew Homepage"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop Tea",
+      "short_name": "Tea",
+      "description": "Browse our tea collection",
+      "url": "/#tea",
+      "icons": [{ "src": "/favicon.png", "sizes": "64x64" }]
+    },
+    {
+      "name": "Shop Spices",
+      "short_name": "Spices",
+      "description": "Browse natural spices",
+      "url": "/#spices",
+      "icons": [{ "src": "/favicon.png", "sizes": "64x64" }]
+    },
+    {
+      "name": "WhatsApp Order",
+      "short_name": "Order",
+      "description": "Place an order via WhatsApp",
+      "url": "https://wa.me/919655679322",
+      "icons": [{ "src": "/favicon.png", "sizes": "64x64" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
