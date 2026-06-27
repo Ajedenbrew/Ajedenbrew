@@ -62,7 +62,7 @@ Premium teas, spices, honey, chocolates and nuts — sourced directly from the f
 
 ## 📞 Contact
 
-- **Owner:** Ajay Kumar
+- **Owner:** Ajay
 - **Email:** ajedenbrew@gmail.com
 - **Phone:** +91 9655679322
 - **WhatsApp:** [Chat with us](https://wa.me/919655679322)
